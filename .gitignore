@@ -1,3 +1,7 @@
+### Custom ###
+src/main/resources/application-dev.properties
+
+### Default ###
 HELP.md
 .gradle
 build/
