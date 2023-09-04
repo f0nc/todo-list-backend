@@ -1,6 +1,7 @@
 package com.example.TodoList;
 
 import com.example.TodoList.entry.Entry;
+import com.example.TodoList.entry.EntryRepository;
 import com.example.TodoList.entry.EntryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +21,21 @@ public class EntryServiceTests {
     private static final String EXPECTED_USERNAME = "expectedUser";
 
     @Autowired
-    private EntryService entryService;
+    private EntryService target;
+
+    @Autowired
+    private EntryRepository entryRepository;
 
     @Test
     @WithMockUser(EXPECTED_USERNAME)
     public void save_ShouldBeAbleToSaveNewEntries() {
-        List<Entry> entries = entryService.list();
+        List<Entry> entries = entryRepository.findAll();
         assertEquals(0, entries.size());
 
         Entry newEntry = new Entry("foo", "bar");
-        entryService.save(newEntry);
+        target.save(newEntry);
 
-        List<Entry> updatedEntries = entryService.list();
+        List<Entry> updatedEntries = entryRepository.findAll();
         assertEquals(1, updatedEntries.size());
     }
 
@@ -53,10 +57,10 @@ public class EntryServiceTests {
         allEntries.addAll(notExpectedEntries);
 
         for (Entry entry : allEntries) {
-           entryService.save(entry);
+           target.save(entry);
         }
 
-        List<Entry> actual = entryService.listUserEntries();
+        List<Entry> actual = target.listUserEntries();
 
         for (Entry expectedEntry : expected) {
             assertTrue(actual.contains(expectedEntry));
@@ -73,20 +77,19 @@ public class EntryServiceTests {
         Entry expected = new Entry("xoo", "bar");
         assertNull(expected.getId());
 
-        entryService.save(expected);
+        target.save(expected);
         assertNotNull(expected.getId());
 
-        Optional<Entry> actual = entryService.findById(expected.getId());
+        Optional<Entry> actual = target.findById(expected.getId());
         assertTrue(actual.isPresent());
         assertEquals(actual.get(), expected);
     }
 
     @Test
-    @WithMockUser(EXPECTED_USERNAME)
     public void tests_ShouldStartWithEmptyDatabase() {
         // With @Transactional annotation on the class, DB changes
         // should be rolled back after each test, so database should be empty here
-        List<Entry> entries = entryService.list();
+        List<Entry> entries = entryRepository.findAll();
         assertEquals(0, entries.size());
     }
 }

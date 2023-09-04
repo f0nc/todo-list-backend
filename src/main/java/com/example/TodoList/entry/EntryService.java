@@ -16,14 +16,8 @@ public class EntryService {
     @Autowired
     private EntryRepository entryRepository;
 
-    public List<Entry> list() {
-         return entryRepository.findAll();
-    }
-
     public List<Entry> listUserEntries() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        String username = authentication.getName();
+        String username = getUsername();
 
         return entryRepository.findByUsername(username);
     }
@@ -34,5 +28,11 @@ public class EntryService {
 
     public Optional<Entry> findById(Long id) {
         return entryRepository.findById(id);
+    }
+
+    private String getUsername() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        return authentication.getName();
     }
 }
