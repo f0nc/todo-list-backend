@@ -72,20 +72,6 @@ public class EntryServiceTests {
     }
 
     @Test
-    @WithMockUser(EXPECTED_USERNAME)
-    public void findById_ShouldBeAbleToFindEntryWithId() {
-        Entry expected = new Entry("xoo", "bar");
-        assertNull(expected.getId());
-
-        target.save(expected);
-        assertNotNull(expected.getId());
-
-        Optional<Entry> actual = target.findById(expected.getId());
-        assertTrue(actual.isPresent());
-        assertEquals(actual.get(), expected);
-    }
-
-    @Test
     public void tests_ShouldStartWithEmptyDatabase() {
         // With @Transactional annotation on the class, DB changes
         // should be rolled back after each test, so database should be empty here

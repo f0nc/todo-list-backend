@@ -26,10 +26,6 @@ public class EntryService {
         entryRepository.save(entry);
     }
 
-    public Optional<Entry> findById(Long id) {
-        return entryRepository.findById(id);
-    }
-
     private String getUsername() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
