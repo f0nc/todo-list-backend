@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,7 +41,37 @@ public class EntryServiceTests {
 
     @Test
     @WithMockUser(EXPECTED_USERNAME)
-    public void listUserEntries_ShouldReturnOnlyAuthenticatedUserEntries() {
+    public void save_ShouldSetEntryUsernameAsCurrentUser() {
+        Entry entry = new Entry("description");
+
+        target.save(entry);
+        assertNotNull(entry.getId());
+
+        Optional<Entry> queryResult = entryRepository.findById(entry.getId());
+        assertTrue(queryResult.isPresent());
+
+        String actualUsername = queryResult.get().getUsername();
+        assertEquals(EXPECTED_USERNAME, actualUsername);
+    }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void save_ShouldReplaceEntryUsernameWithCurrentUser() {
+        Entry entryWithMaliciousUsername = new Entry("someone-else", "description");
+
+        target.save(entryWithMaliciousUsername);
+        assertNotNull(entryWithMaliciousUsername.getId());
+
+        Optional<Entry> queryResult = entryRepository.findById(entryWithMaliciousUsername.getId());
+        assertTrue(queryResult.isPresent());
+
+        String actualUsername = queryResult.get().getUsername();
+        assertEquals(EXPECTED_USERNAME, actualUsername);
+    }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void list_ShouldReturnOnlyAuthenticatedUserEntries() {
         String username = EXPECTED_USERNAME;
         List<Entry> expected = List.of(
                 new Entry(username, "bar"),
@@ -56,7 +87,7 @@ public class EntryServiceTests {
         allEntries.addAll(notExpectedEntries);
 
         for (Entry entry : allEntries) {
-           target.save(entry);
+           entryRepository.save(entry);
         }
 
         List<Entry> actual = target.list();

@@ -22,6 +22,10 @@ public class EntryService {
     }
 
     public void save(Entry entry) {
+        String username = getUsername();
+
+        entry.setUsername(username);
+
         entryRepository.save(entry);
     }
 

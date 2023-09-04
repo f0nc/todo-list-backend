@@ -20,6 +20,10 @@ public class Entry {
         this.description = description;
     }
 
+    public Entry(String description) {
+        this.description = description;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -29,4 +33,8 @@ public class Entry {
     }
 
     public Long getId() { return id; }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
