@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,7 +59,7 @@ public class EntryServiceTests {
            target.save(entry);
         }
 
-        List<Entry> actual = target.listUserEntries();
+        List<Entry> actual = target.list();
 
         for (Entry expectedEntry : expected) {
             assertTrue(actual.contains(expectedEntry));

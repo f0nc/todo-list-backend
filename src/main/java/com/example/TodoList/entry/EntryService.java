@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @PreAuthorize("isAuthenticated()")
@@ -16,7 +15,7 @@ public class EntryService {
     @Autowired
     private EntryRepository entryRepository;
 
-    public List<Entry> listUserEntries() {
+    public List<Entry> list() {
         String username = getUsername();
 
         return entryRepository.findByUsername(username);

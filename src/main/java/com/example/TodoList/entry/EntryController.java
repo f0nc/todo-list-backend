@@ -13,6 +13,6 @@ public class EntryController {
 
     @GetMapping("entry")
     public List<Entry> entry() {
-        return entryService.listUserEntries();
+        return entryService.list();
     }
 }
