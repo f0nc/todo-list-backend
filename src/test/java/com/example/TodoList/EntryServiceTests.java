@@ -3,6 +3,7 @@ package com.example.TodoList;
 import com.example.TodoList.entry.Entry;
 import com.example.TodoList.entry.EntryRepository;
 import com.example.TodoList.entry.EntryService;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -107,5 +108,13 @@ public class EntryServiceTests {
         // should be rolled back after each test, so database should be empty here
         List<Entry> entries = entryRepository.findAll();
         assertEquals(0, entries.size());
+    }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void save_ShouldThrowAnErrorIfEntryValidationFails() {
+        Entry invalidEntry = new Entry("");
+
+        assertThrows(ConstraintViolationException.class, () -> target.save(invalidEntry));
     }
 }
