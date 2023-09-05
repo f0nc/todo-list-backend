@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,9 @@ public class EntryControllerTests {
     @Autowired
     private EntryRepository entryRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     @WithMockUser(EXPECTED_USERNAME)
     public void getEntry_ShouldReturnUsersEntries() throws Exception {
@@ -58,9 +62,13 @@ public class EntryControllerTests {
         List<Entry> entriesBefore = entryRepository.findAll();
         assertEquals(0, entriesBefore.size());
 
+        Entry entry = new Entry("Todo list entry description");
+        String entryJson = objectMapper.writeValueAsString(entry);
+
         mvc.perform(
                 post("/entry")
-                    .param("description", "description for entry")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(entryJson)
                     .with(csrf())
                 )
                 .andExpect(status().isCreated());
@@ -72,9 +80,14 @@ public class EntryControllerTests {
     @Test
     @WithMockUser(EXPECTED_USERNAME)
     public void postEntry_ShouldReturnErrorWhenEntryIsNotValid() throws Exception {
+        Entry invalidEntry = new Entry("");
+
+        String entryJson = objectMapper.writeValueAsString(invalidEntry);
+
         mvc.perform(
                 post("/entry")
-                        .param("description", "")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(entryJson)
                         .with(csrf())
                 )
                 .andExpect(status().isBadRequest())

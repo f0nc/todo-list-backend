@@ -24,7 +24,7 @@ public class EntryController {
 
     @PostMapping("entry")
     @ResponseStatus(HttpStatus.CREATED)
-    public Entry saveEntry(@ModelAttribute Entry entry) {
+     public Entry saveEntry(@RequestBody Entry entry) {
         return entryService.save(entry);
     }
 
