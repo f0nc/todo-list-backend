@@ -117,4 +117,40 @@ public class EntryServiceTests {
 
         assertThrows(ConstraintViolationException.class, () -> target.save(invalidEntry));
     }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void delete_ShouldBeAbleToDeleteEntry() {
+        Entry entry = new Entry(EXPECTED_USERNAME, "entry description");
+        entryRepository.save(entry);
+
+        Long entryId = entry.getId();
+        assertNotNull(entryId);
+
+        Optional<Entry> entryBeforeDelete = entryRepository.findById(entryId);
+        assertTrue(entryBeforeDelete.isPresent());
+
+        target.delete(entryId);
+
+        Optional<Entry> entryAfterDelete = entryRepository.findById(entryId);
+        assertFalse(entryAfterDelete.isPresent());
+    }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void delete_ShouldNotBeAbleToDeleteOtherUserEntries() {
+        Entry otherUserEntry = new Entry("different-user", "should not be able to delete this");
+        entryRepository.save(otherUserEntry);
+
+        Long otherUserEntryId = otherUserEntry.getId();
+        assertNotNull(otherUserEntryId);
+
+        Optional<Entry> entryBeforeDelete = entryRepository.findById(otherUserEntryId);
+        assertTrue(entryBeforeDelete.isPresent());
+
+        target.delete(otherUserEntryId);
+
+        Optional<Entry> entryAfterDelete = entryRepository.findById(otherUserEntryId);
+        assertTrue(entryAfterDelete.isPresent());
+    }
 }

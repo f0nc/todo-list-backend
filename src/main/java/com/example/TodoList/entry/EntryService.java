@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -40,6 +41,18 @@ public class EntryService {
         entry.setUsername(username);
 
         return entryRepository.save(entry);
+    }
+
+    public void delete(Long id) {
+        Optional<Entry> maybeEntry = entryRepository.findById(id);
+
+        if (maybeEntry.isPresent()) {
+            Entry entry = maybeEntry.get();
+
+            if (entry.getUsername().equals(getUsername())) {
+                entryRepository.deleteById(id);
+            }
+        }
     }
 
     private String getUsername() {
