@@ -13,13 +13,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,5 +92,25 @@ public class EntryControllerTests {
                 )
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("{\"description\":[\"must not be blank\"]}")));
+    }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void deleteEntry_ShouldDeleteEntryWithGivenId() throws Exception {
+        Entry entry = new Entry(EXPECTED_USERNAME, "entry to be deleted");
+        entryRepository.save(entry);
+
+        Long entryId = entry.getId();
+        assertNotNull(entryId);
+
+        mvc.perform(
+                    delete("/entry/" + entry.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(csrf())
+                )
+                .andExpect(status().isOk());
+
+        Optional<Entry> maybeEntry = entryRepository.findById(entryId);
+        assertFalse(maybeEntry.isPresent());
     }
 }

@@ -28,6 +28,11 @@ public class EntryController {
         return entryService.save(entry);
     }
 
+    @DeleteMapping("/entry/{id}")
+    public void deleteEntry(@PathVariable("id") Long id) {
+        entryService.delete(id);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
     public ResponseEntity<ErrorDto> handler(ConstraintViolationException exception) {
