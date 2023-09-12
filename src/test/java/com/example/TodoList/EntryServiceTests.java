@@ -11,6 +11,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,35 @@ public class EntryServiceTests {
 
         String actualUsername = queryResult.get().getUsername();
         assertEquals(EXPECTED_USERNAME, actualUsername);
+    }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void save_ShouldAllowDueDateInFuture() {
+        int secondsInADay = 60 * 60 * 24;
+        Instant thisTimeTomorrow = Instant.now().plusSeconds(secondsInADay);
+        Entry entry = new Entry("entry in future", thisTimeTomorrow);
+
+        target.save(entry);
+
+        Long entryId = entry.getId();
+        assertNotNull(entryId);
+
+        Optional<Entry> maybeEntry = entryRepository.findById(entryId);
+        assertTrue(maybeEntry.isPresent());
+    }
+
+    @Test
+    @WithMockUser(EXPECTED_USERNAME)
+    public void save_ShouldThrowExceptionIfDueDateIsInPast() {
+        int secondsInADay = 60 * 60 * 24;
+        Instant thisTimeYesterday = Instant.now().minusSeconds(secondsInADay);
+        Entry invalidEntry = new Entry("Entry in past", thisTimeYesterday);
+
+        assertThrows(ConstraintViolationException.class, () -> target.save(invalidEntry));
+
+        Long entryId = invalidEntry.getId();
+        assertNull(entryId);
     }
 
     @Test
