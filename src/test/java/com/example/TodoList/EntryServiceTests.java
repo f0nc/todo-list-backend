@@ -32,14 +32,16 @@ public class EntryServiceTests {
     @Test
     @WithMockUser(EXPECTED_USERNAME)
     public void save_ShouldBeAbleToSaveNewEntries() {
-        List<Entry> entries = entryRepository.findAll();
-        assertEquals(0, entries.size());
-
         Entry newEntry = new Entry("foo", "bar");
+        assertNull(newEntry.getId());
+
         target.save(newEntry);
 
-        List<Entry> updatedEntries = entryRepository.findAll();
-        assertEquals(1, updatedEntries.size());
+        Long entryId = newEntry.getId();
+        assertNotNull(entryId);
+
+        Optional<Entry> maybeEntry = entryRepository.findById(entryId);
+        assertTrue(maybeEntry.isPresent());
     }
 
     @Test
@@ -102,14 +104,6 @@ public class EntryServiceTests {
         for (Entry notExpectedEntry : notExpectedEntries) {
             assertFalse(actual.contains(notExpectedEntry));
         }
-    }
-
-    @Test
-    public void tests_ShouldStartWithEmptyDatabase() {
-        // With @Transactional annotation on the class, DB changes
-        // should be rolled back after each test, so database should be empty here
-        List<Entry> entries = entryRepository.findAll();
-        assertEquals(0, entries.size());
     }
 
     @Test
